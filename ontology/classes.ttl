@@ -1,0 +1,36 @@
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix ccm: <http://example.org/calendar-ontology#> .
+
+ccm: a nrl:Namespace, nrl:Ontology ;
+    nrl:prefix "ccm" ;
+    rdfs:comment "calendar and contact management ontology" ;
+    nrl:lastModified "2025-06-20T15:00:00Z" .
+
+# Classes
+ccm:Provider a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Provider"@en ;
+    rdfs:comment "A provider of calendar services."@en ;
+    nrl:notify true .
+
+ccm:Collection a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Collection"@en ;
+    rdfs:comment "A collection of calendars."@en ;
+    nrl:notify true .
+
+ccm:Calendar a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Calendar"@en ;
+    rdfs:comment "A collection of events."@en ;
+    nrl:notify true .
+
+ccm:Event a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "Event"@en ;
+    rdfs:comment "An occurrence or activity taking place at a specific time or over a period."@en ;
+    nrl:notify true .

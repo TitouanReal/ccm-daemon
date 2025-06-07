@@ -1,0 +1,35 @@
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix ccm: <http://example.org/calendar-ontology#> .
+
+# Properties
+ccm:provider a rdf:Property;
+    rdfs:label "is in provider"@en;
+    rdfs:comment "Links a calendar to the provider it is in."@en;
+    rdfs:domain ccm:Collection;
+    rdfs:range ccm:Provider.
+    # nrl:maxCardinality "1".
+
+ccm:collection a rdf:Property;
+    rdfs:label "is in collection"@en;
+    rdfs:comment "Links a calendar to the collection it is in."@en;
+    rdfs:domain ccm:Calendar;
+    rdfs:range ccm:Collection.
+    # nrl:maxCardinality "1".
+
+ccm:calendar a rdf:Property;
+    rdfs:label "is in calendar"@en;
+    rdfs:comment "Links an event to the calendar it is in."@en;
+    rdfs:domain ccm:Event;
+    rdfs:range ccm:Calendar.
+    # nrl:maxCardinality "1".
+
+ccm:color a rdf:Property;
+    rdfs:label "is in color"@en;
+    rdfs:comment "Links an event to the color it is in."@en;
+    rdfs:domain ccm:Calendar;
+    rdfs:range xsd:string.
+    # nrl:maxCardinality "1".
