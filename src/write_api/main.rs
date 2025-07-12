@@ -1,91 +1,154 @@
 // Copyright 2025 Titouan Real <titouan.real@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
-use std::{error::Error, future::pending, sync::Mutex};
+use std::{error::Error, future::pending};
 
-use tracing::info;
+use tracing::{error, info};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
-use tracker::{SparqlConnection, gio};
+use tracker::SparqlConnection;
 use zbus::{connection, interface};
 
 struct ProviderObject {
-    endpoint: Mutex<SparqlConnection>,
+    endpoint: SparqlConnection,
 }
 
 #[interface(name = "io.gitlab.TitouanReal.CcmWrite.Provider")]
 impl ProviderObject {
-    async fn add_collection(&mut self, provider_uri: &str, collection_name: &str) {
-        let endpoint = self.endpoint.lock().unwrap();
-        endpoint.update_async(
-            &format!(
-                "INSERT {{
-                    GRAPH ccm:Calendar {{
-                        _:collection a ccm:Collection ;
-                            rdfs:label \"{collection_name}\" ;
-                            ccm:provider \"{provider_uri}\".
-                    }}
-                }}",
-            ),
-            None::<&gio::Cancellable>,
-            |_| {},
-        );
+    async fn create_collection(&mut self, provider_uri: &str, name: &str) {
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "INSERT DATA {
+                    _:collection a ccm:Collection ;
+                        rdfs:label ~name ;
+                        ccm:provider ~provider_uri .
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL should be valid")
+            .expect("SPARQL should be valid");
+        statement.bind_string("provider_uri", provider_uri);
+        statement.bind_string("name", name);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Collection \"{name}\" created"),
+            Err(err) => error!("Failed to create collection: {err:?}"),
+        }
     }
 
-    async fn add_calendar(&mut self, collection_uri: &str, name: &str, color: &str) {
-        let endpoint = self.endpoint.lock().unwrap();
-        info!(
-            "Creating calendar {} of color {} to collection {}...",
-            name, color, collection_uri
-        );
-        endpoint.update_async(
-            &format!(
-                "INSERT {{
-                    GRAPH ccm:Calendar {{
-                        _:calendar a ccm:Calendar ;
-                            ccm:collection \"{collection_uri}\" ;
-                            rdfs:label \"{name}\" ;
-                            ccm:color \"{color}\" .
-                    }}
-                }}",
-            ),
-            None::<&gio::Cancellable>,
-            |_| {},
-        );
-        info!("Calendar {} created", name);
+    async fn create_calendar(&mut self, collection_uri: &str, name: &str, color: &str) {
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "INSERT DATA {
+                    _:calendar a ccm:Calendar ;
+                        ccm:collection ~collection_uri ;
+                        rdfs:label ~name ;
+                        ccm:color ~color .
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL should be valid")
+            .expect("SPARQL should be valid");
+        statement.bind_string("collection_uri", collection_uri);
+        statement.bind_string("name", name);
+        statement.bind_string("color", color);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Calendar \"{name}\" created"),
+            Err(err) => error!("Failed to create calendar: {err:?}"),
+        }
     }
 
-    async fn add_event(&mut self, calendar_uri: &str, event_name: &str) {
-        let endpoint = self.endpoint.lock().unwrap();
-        endpoint.update_async(
-            &format!(
-                "INSERT {{
-                    GRAPH ccm:Calendar {{
-                        _:event a ccm:Event ;
-                            rdfs:label \"{event_name}\" ;
-                            ccm:calendar \"{calendar_uri}\".
-                    }}
-                }}",
-            ),
-            None::<&gio::Cancellable>,
-            |_| {},
-        );
+    async fn update_calendar_name(&mut self, uri: &str, name: &str) {
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "DELETE {
+                    ~uri rdfs:label ?old_name
+                } INSERT {
+                    ~uri rdfs:label ~name
+                } WHERE {
+                    ~uri a ccm:Calendar ;
+                        rdfs:label ?old_name .
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL syntax should be valid")
+            .expect("SPARQL syntax should be valid");
+        statement.bind_string("uri", uri);
+        statement.bind_string("name", name);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Calendar \"{uri}\" updated to name \"{name}\""),
+            Err(err) => error!("Failed to update calendar \"{uri}\" to name \"{name}\": {err:?}"),
+        }
+    }
+
+    async fn update_calendar_color(&mut self, uri: &str, color: &str) {
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "DELETE {
+                    ~uri ccm:color ?old_color
+                } INSERT {
+                    ~uri ccm:color ~color
+                } WHERE {
+                    ~uri a ccm:Calendar ;
+                        ccm:color ?old_color .
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL should be valid")
+            .expect("SPARQL should be valid");
+        statement.bind_string("uri", uri);
+        statement.bind_string("color", color);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Calendar \"{uri}\" updated to color {color}"),
+            Err(err) => error!("Failed to update calendar \"{uri}\" to color {color}: {err:?}"),
+        }
     }
 
     async fn delete_calendar(&mut self, uri: &str) {
-        let endpoint = self.endpoint.lock().unwrap();
-        info!("Deleting calendar {}", uri);
-        endpoint.update_async(
-            &format!(
-                "DELETE {{
-                    GRAPH ccm:Calendar {{
-                        {uri} a ccm:Calendar.
-                    }}
-                }}",
-            ),
-            None::<&gio::Cancellable>,
-            |_| {},
-        );
-        info!("Calendar {} deleted", uri);
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "DELETE DATA {
+                    ~uri a ccm:Calendar .
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL should be valid")
+            .expect("SPARQL should be valid");
+        statement.bind_string("uri", uri);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Calendar \"{uri}\" deleted"),
+            Err(err) => error!("Failed to delete calendar \"{uri}\": {err:?}"),
+        }
+    }
+
+    async fn create_event(&mut self, calendar_uri: &str, name: &str) {
+        let endpoint = self.endpoint.clone();
+        let statement = endpoint
+            .update_statement(
+                "INSERT DATA {
+                    _:event a ccm:Event ;
+                        ccm:calendar ~calendar_uri .
+                        rdfs:label ~name ;
+                }",
+                None::<&gio::Cancellable>,
+            )
+            .expect("SPARQL should be valid")
+            .expect("SPARQL should be valid");
+        statement.bind_string("calendar_uri", calendar_uri);
+        statement.bind_string("name", name);
+
+        match statement.update(None::<&gio::Cancellable>) {
+            Ok(()) => info!("Event \"{name}\" created"),
+            Err(err) => error!("Failed to create event: {err:?}"),
+        }
     }
 }
 
@@ -101,7 +164,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         SparqlConnection::bus_new("io.gitlab.TitouanReal.CcmRead", None, None).unwrap();
 
     let provider = ProviderObject {
-        endpoint: Mutex::new(sparql_connection),
+        endpoint: sparql_connection,
     };
     let _conn = connection::Builder::session()?
         .name("io.gitlab.TitouanReal.CcmWrite")?

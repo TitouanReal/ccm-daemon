@@ -12,13 +12,10 @@ name = "write_api"
 path = "src/write_api/main.rs"
 
 [dependencies]
-gio = "0.20"
+gio = "0.20.12"
 serde = "1.0"
 tokio = { version = "1.45", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tracker-rs = { git = "https://gitlab.gnome.org/World/Rust/tracker-rs" }
+tracker-rs = { version = "0.6.1", features = ["v3_5"] }
 zbus = "5.7"
-
-[patch.'https://gitlab.gnome.org/World/Rust/tracker-rs']
-tracker-rs = { path = "../tracker-rs" }
