@@ -2,34 +2,75 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tracker: <http://tracker.api.gnome.org/ontology/v3/tracker#> .
 
 @prefix ccm: <http://example.org/calendar-ontology#> .
 
-# Properties
-ccm:provider a rdf:Property;
-    rdfs:label "is in provider"@en;
-    rdfs:comment "Links a calendar to the provider it is in."@en;
-    rdfs:domain ccm:Collection;
-    rdfs:range ccm:Provider.
-    # nrl:maxCardinality "1".
+# Provider Properties
+ccm:providerName a rdf:Property ;
+    rdfs:label "provider name"@en ;
+    rdfs:comment "The name of the provider"@en ;
+    rdfs:domain ccm:Provider ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .
 
-ccm:collection a rdf:Property;
-    rdfs:label "is in collection"@en;
-    rdfs:comment "Links a calendar to the collection it is in."@en;
-    rdfs:domain ccm:Calendar;
-    rdfs:range ccm:Collection.
-    # nrl:maxCardinality "1".
+# Collection Properties
+ccm:provider a rdf:Property ;
+    rdfs:label "is in provider"@en ;
+    rdfs:comment "Links a calendar to the provider it is in."@en ;
+    rdfs:domain ccm:Collection ;
+    rdfs:range ccm:Provider .
+    # nrl:maxCardinality "1" .
 
-ccm:calendar a rdf:Property;
-    rdfs:label "is in calendar"@en;
-    rdfs:comment "Links an event to the calendar it is in."@en;
-    rdfs:domain ccm:Event;
-    rdfs:range ccm:Calendar.
-    # nrl:maxCardinality "1".
+ccm:collectionName a rdf:Property ;
+    rdfs:label "collection name"@en ;
+    rdfs:comment "The name of the collection"@en ;
+    rdfs:domain ccm:Collection ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .
 
-ccm:color a rdf:Property;
-    rdfs:label "is in color"@en;
-    rdfs:comment "Links an event to the color it is in."@en;
-    rdfs:domain ccm:Calendar;
-    rdfs:range xsd:string.
-    # nrl:maxCardinality "1".
+# Calendar Properties
+ccm:collection a rdf:Property ;
+    rdfs:label "is in collection"@en ;
+    rdfs:comment "Links a calendar to the collection it is in."@en ;
+    rdfs:domain ccm:Calendar ;
+    rdfs:range ccm:Collection .
+    # nrl:maxCardinality "1" .
+
+ccm:calendarName a rdf:Property ;
+    rdfs:label "calendar name"@en ;
+    rdfs:comment "The name of the calendar"@en ;
+    rdfs:domain ccm:Calendar ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .
+
+ccm:color a rdf:Property ;
+    rdfs:label "is in color"@en ;
+    rdfs:comment "Links an event to the color it is in."@en ;
+    rdfs:domain ccm:Calendar ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .
+
+# Event Properties
+ccm:calendar a rdf:Property ;
+    rdfs:label "is in calendar"@en ;
+    rdfs:comment "Links an event to the calendar it is in."@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range ccm:Calendar .
+    # nrl:maxCardinality "1" .
+
+ccm:eventName a rdf:Property ;
+    rdfs:label "event name"@en ;
+    rdfs:comment "The name of the event"@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range xsd:string ;
+    nrl:fulltextIndexed true .
+    # nrl:maxCardinality "1" .
+
+ccm:eventDescription a rdf:Property ;
+    rdfs:label "event description"@en ;
+    rdfs:comment "The description of the event"@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range xsd:string ;
+    nrl:fulltextIndexed true .
+    # nrl:maxCardinality "1" .

@@ -2,6 +2,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tracker: <http://tracker.api.gnome.org/ontology/v3/tracker#> .
 
 @prefix ccm: <http://example.org/calendar-ontology#> .
 
@@ -33,4 +34,10 @@ ccm:Event a rdfs:Class ;
     rdfs:subClassOf rdfs:Resource ;
     rdfs:label "Event"@en ;
     rdfs:comment "An occurrence or activity taking place at a specific time or over a period."@en ;
+    nrl:notify true .
+
+ccm:DateTime a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:label "DateTime"@en ;
+    rdfs:comment "A specific point in time."@en ;
     nrl:notify true .

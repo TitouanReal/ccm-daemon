@@ -20,7 +20,7 @@ impl ProviderObject {
             .update_statement(
                 "INSERT DATA {
                     _:collection a ccm:Collection ;
-                        rdfs:label ~name ;
+                        ccm:collectionName ~name ;
                         ccm:provider ~provider_uri .
                 }",
                 None::<&gio::Cancellable>,
@@ -43,7 +43,7 @@ impl ProviderObject {
                 "INSERT DATA {
                     _:calendar a ccm:Calendar ;
                         ccm:collection ~collection_uri ;
-                        rdfs:label ~name ;
+                        ccm:calendarName ~name ;
                         ccm:color ~color .
                 }",
                 None::<&gio::Cancellable>,
@@ -65,12 +65,12 @@ impl ProviderObject {
         let statement = endpoint
             .update_statement(
                 "DELETE {
-                    ~uri rdfs:label ?old_name
+                    ~uri ccm:calendarName ?old_name
                 } INSERT {
-                    ~uri rdfs:label ~name
+                    ~uri ccm:calendarName ~name
                 } WHERE {
                     ~uri a ccm:Calendar ;
-                        rdfs:label ?old_name .
+                        ccm:calendarName ?old_name .
                 }",
                 None::<&gio::Cancellable>,
             )
@@ -129,14 +129,15 @@ impl ProviderObject {
         }
     }
 
-    async fn create_event(&mut self, calendar_uri: &str, name: &str) {
+    async fn create_event(&mut self, calendar_uri: &str, name: &str, description: &str) {
         let endpoint = self.endpoint.clone();
         let statement = endpoint
             .update_statement(
                 "INSERT DATA {
                     _:event a ccm:Event ;
-                        ccm:calendar ~calendar_uri .
-                        rdfs:label ~name ;
+                        ccm:calendar ~calendar_uri ;
+                        ccm:eventName ~name ;
+                        ccm:eventDescription ~description .
                 }",
                 None::<&gio::Cancellable>,
             )
@@ -144,6 +145,7 @@ impl ProviderObject {
             .expect("SPARQL should be valid");
         statement.bind_string("calendar_uri", calendar_uri);
         statement.bind_string("name", name);
+        statement.bind_string("description", description);
 
         match statement.update(None::<&gio::Cancellable>) {
             Ok(()) => info!("Event \"{name}\" created"),
@@ -172,7 +174,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()
         .await?;
 
-    // Do other things or go to wait forever
     pending::<()>().await;
 
     Ok(())

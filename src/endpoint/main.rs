@@ -5,12 +5,13 @@ use gio::{self, BusNameOwnerFlags, BusType, DBusConnection, bus_own_name, glib::
 use tracker::{EndpointDBus, SparqlConnection, SparqlConnectionFlags};
 
 fn read_bus_acquired(dbus_connection: DBusConnection, _str: &str) {
-    let file = gio::File::for_path("./ontology");
+    let ontology_file = gio::File::for_path("./ontology");
+    let db_file = gio::File::for_path("./data/data.db");
 
     let sparql_connection = SparqlConnection::new(
         SparqlConnectionFlags::NONE,
-        None::<&gio::File>,
-        Some(&file),
+        Some(&db_file),
+        Some(&ontology_file),
         None::<&gio::Cancellable>,
     )
     .unwrap();
@@ -18,54 +19,57 @@ fn read_bus_acquired(dbus_connection: DBusConnection, _str: &str) {
     sparql_connection.update_async(
         "INSERT DATA {
             _:local_provider a ccm:Provider ;
-                rdfs:label \"Local\" .
+                ccm:providerName \"Local\" .
 
             _:local_collection a ccm:Collection ;
                 ccm:provider _:local_provider ;
-                rdfs:label \"My Personal Local Collection\" .
+                ccm:collectionName \"My Personal Local Collection\" .
 
             _:local_calendar a ccm:Calendar ;
                 ccm:collection _:local_collection ;
-                rdfs:label \"My Personal Local Calendar\" ;
+                ccm:calendarName \"My Personal Local Calendar\" ;
                 ccm:color \"#FF0000\" .
 
             _:event_1 a ccm:Event ;
                 ccm:calendar _:local_calendar ;
-                rdfs:label \"Going out for a walk\" .
+                ccm:eventName \"Going out for a walk\" ;
+                ccm:eventDescription \"Walking in the park\" .
 
             _:local_calendar_2 a ccm:Calendar ;
                 ccm:collection _:local_collection ;
-                rdfs:label \"Empty Calendar\" ;
+                ccm:calendarName \"Empty Calendar\" ;
                 ccm:color \"#FF00FF\" .
 
             _:google_provider a ccm:Provider ;
-                rdfs:label \"Google\" .
+                ccm:providerName \"Google\" .
 
             _:titouan_real a ccm:Collection ;
                 ccm:provider _:google_provider ;
-                rdfs:label \"My Personal Google Collection\" .
+                ccm:collectionName \"My Personal Google Collection\" .
 
             _:google_calendar a ccm:Calendar ;
                 ccm:collection _:titouan_real ;
-                rdfs:label \"titouan.real@gmail.com\" ;
+                ccm:calendarName \"titouan.real@gmail.com\" ;
                 ccm:color \"#00FF00\" .
 
             _:event_2 a ccm:Event ;
                 ccm:calendar _:google_calendar ;
-                rdfs:label \"Synced up meeting\" .
+                ccm:eventName \"Synced up meeting\" ;
+                ccm:eventDescription \"Meeting with Jeff\" .
 
             _:jeff a ccm:Collection ;
                 ccm:provider _:google_provider ;
-                rdfs:label \"Jeff's Collection\" .
+                ccm:collectionName \"Jeff's Collection\" .
 
             _:other_google_calendar a ccm:Calendar ;
                 ccm:collection _:jeff ;
-                rdfs:label \"jeff@gmail.com\" ;
+                ccm:calendarName \"jeff@gmail.com\" ;
                 ccm:color \"#00FFFF\" .
 
             _:event_3 a ccm:Event ;
                 ccm:calendar _:google_calendar ;
-                rdfs:label \"Going out for a walk\" .
+                ccm:eventName \"Going out for a walk\" ;
+                ccm:eventDescription \"Walking with Jeff\" .
         }",
         None::<&gio::Cancellable>,
         |result| println!("{result:?}"),
