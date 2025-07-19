@@ -74,3 +74,24 @@ ccm:eventDescription a rdf:Property ;
     rdfs:range xsd:string ;
     nrl:fulltextIndexed true .
     # nrl:maxCardinality "1" .
+
+ccm:eventAllDay a rdf:Property ;
+    rdfs:label "event all day"@en ;
+    rdfs:comment "Indicates if the event is all day"@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range xsd:boolean .
+    # nrl:maxCardinality "1" .
+
+ccm:eventStart a rdf:Property ;
+    rdfs:label "event start"@en ;
+    rdfs:comment "The start time of the event"@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .
+
+ccm:eventEnd a rdf:Property ;
+    rdfs:label "event end"@en ;
+    rdfs:comment "The end time of the event"@en ;
+    rdfs:domain ccm:Event ;
+    rdfs:range xsd:string .
+    # nrl:maxCardinality "1" .

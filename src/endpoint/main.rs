@@ -33,7 +33,10 @@ fn read_bus_acquired(dbus_connection: DBusConnection, _str: &str) {
             _:event_1 a ccm:Event ;
                 ccm:calendar _:local_calendar ;
                 ccm:eventName \"Going out for a walk\" ;
-                ccm:eventDescription \"Walking in the park\" .
+                ccm:eventDescription \"Walking in the park\" ;
+                ccm:eventStart \"2025-07-19T10:00:00[Europe/Paris]\" ;
+                ccm:eventEnd \"2025-07-19T11:00:00[Europe/Paris]\" ;
+                ccm:eventAllDay false .
 
             _:local_calendar_2 a ccm:Calendar ;
                 ccm:collection _:local_collection ;
@@ -55,7 +58,10 @@ fn read_bus_acquired(dbus_connection: DBusConnection, _str: &str) {
             _:event_2 a ccm:Event ;
                 ccm:calendar _:google_calendar ;
                 ccm:eventName \"Synced up meeting\" ;
-                ccm:eventDescription \"Meeting with Jeff\" .
+                ccm:eventDescription \"Meeting with Jeff\" ;
+                ccm:eventStart \"2025-07-20T10:00:00[Europe/Paris]\" ;
+                ccm:eventEnd \"2025-07-20T11:00:00[Europe/Paris]\" ;
+                ccm:eventAllDay false .
 
             _:jeff a ccm:Collection ;
                 ccm:provider _:google_provider ;
@@ -68,8 +74,19 @@ fn read_bus_acquired(dbus_connection: DBusConnection, _str: &str) {
 
             _:event_3 a ccm:Event ;
                 ccm:calendar _:google_calendar ;
-                ccm:eventName \"Going out for a walk\" ;
-                ccm:eventDescription \"Walking with Jeff\" .
+                ccm:eventName \"Going to New York!\" ;
+                ccm:eventDescription \"Walking with Jeff\" ;
+                ccm:eventStart \"2025-07-22T10:00:00[Europe/Paris]\" ;
+                ccm:eventEnd \"2025-07-22T12:00:00[America/New_York]\" ;
+                ccm:eventAllDay false .
+
+            _:event_4 a ccm:Event ;
+                ccm:calendar _:google_calendar ;
+                ccm:eventName \"Some holidays in NY\" ;
+                ccm:eventDescription \"I will visit the Statue of Liberty and Central Park\" ;
+                ccm:eventStart \"2025-07-23\" ;
+                ccm:eventEnd \"2025-07-26\" ;
+                ccm:eventAllDay true .
         }",
         None::<&gio::Cancellable>,
         |result| println!("{result:?}"),
